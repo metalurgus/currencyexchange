@@ -1,8 +1,8 @@
-package com.example.currencyexchange.data.storage.impl
+package com.example.currencyexchange.data.provider.impl
 
 import android.content.Context
 import com.example.currencyexchange.data.model.Balance
-import com.example.currencyexchange.data.storage.SharedPrefsProvider
+import com.example.currencyexchange.data.provider.SharedPrefsProvider
 import com.example.currencyexchange.data.util.ObservableMutableList
 import com.google.gson.Gson
 import org.koin.core.context.GlobalContext
@@ -19,20 +19,26 @@ class SharedPrefsProviderImpl(private val gson: Gson) : SharedPrefsProvider {
         context.getSharedPreferences(SharedPrefsProvider::class.java.name, Context.MODE_PRIVATE)
 
     private val balances: ObservableMutableList<Balance> by lazy {
-        //TODO: initialize by lazy or somehow else
         val balancesJson = prefs.getString(BALANCES_KEY, null)
-        if (balancesJson != null) {
-            val result = ObservableMutableList<Balance>()
-            result.addAll(gson.fromJson(balancesJson, Array<Balance>::class.java))
-            result
-        } else {
-            saveBalances(listOf(DEFAULT_BALANCE))
-            balances
+        val result = ObservableMutableList<Balance>()
+
+        result.addObserver { list ->
+            prefs.edit().putString(BALANCES_KEY, gson.toJson(list)).apply()
         }
+
+        if (balancesJson != null) {
+            result.addAll(gson.fromJson(balancesJson, Array<Balance>::class.java))
+        } else {
+            result.add(DEFAULT_BALANCE)
+        }
+
+
+
+        result
     }
 
     override fun getAllBalances(): List<Balance> {
-        return emptyList()
+        return balances
     }
 
     override fun saveBalances(newBalances: List<Balance>) {

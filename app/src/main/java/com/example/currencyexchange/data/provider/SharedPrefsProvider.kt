@@ -1,4 +1,4 @@
-package com.example.currencyexchange.data.storage
+package com.example.currencyexchange.data.provider
 
 import com.example.currencyexchange.data.model.Balance
 

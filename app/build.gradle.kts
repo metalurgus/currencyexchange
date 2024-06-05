@@ -40,6 +40,8 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
+    implementation(libs.androidx.monitor)
+    implementation(libs.androidx.runner)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -60,4 +62,8 @@ dependencies {
     //KOIN
     implementation(libs.koin.android)
     implementation(libs.koin.core)
+    androidTestImplementation(libs.koin.test)
+
+
+
 }

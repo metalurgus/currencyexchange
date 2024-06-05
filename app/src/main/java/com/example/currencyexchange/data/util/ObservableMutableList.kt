@@ -1,18 +1,18 @@
 package com.example.currencyexchange.data.util
 
-interface ListObserver {
-    fun onListChanged()
+fun interface ListObserver<T> {
+    fun onListChanged(ts: ObservableMutableList<T>)
 }
 
 class ObservableMutableList<T> : MutableList<T> {
     private val list: MutableList<T> = mutableListOf()
-    private val observers: MutableList<ListObserver> = mutableListOf()
+    private val observers: MutableList<ListObserver<T>> = mutableListOf()
 
-    fun addObserver(observer: ListObserver) {
+    fun addObserver(observer: ListObserver<T>) {
         observers.add(observer)
     }
 
-    fun removeObserver(observer: ListObserver) {
+    fun removeObserver(observer: ListObserver<T>) {
         observers.remove(observer)
     }
 
@@ -36,20 +36,20 @@ class ObservableMutableList<T> : MutableList<T> {
     override fun add(element: T): Boolean {
         val added = list.add(element)
         if (added) {
-            observers.forEach { it.onListChanged() }
+            observers.forEach { it.onListChanged(this) }
         }
         return added
     }
 
     override fun add(index: Int, element: T) {
         list.add(index, element)
-        observers.forEach { it.onListChanged() }
+        observers.forEach { it.onListChanged(this) }
     }
 
     override fun addAll(index: Int, elements: Collection<T>): Boolean {
         val added = list.addAll(index, elements)
         if (added) {
-            observers.forEach { it.onListChanged() }
+            observers.forEach { it.onListChanged(this) }
         }
         return added
     }
@@ -57,14 +57,14 @@ class ObservableMutableList<T> : MutableList<T> {
     override fun addAll(elements: Collection<T>): Boolean {
         val added = list.addAll(elements)
         if (added) {
-            observers.forEach { it.onListChanged() }
+            observers.forEach { it.onListChanged(this) }
         }
         return added
     }
 
     override fun clear() {
         list.clear()
-        observers.forEach { it.onListChanged() }
+        observers.forEach { it.onListChanged(this) }
     }
 
     override fun listIterator(): MutableListIterator<T> = list.listIterator()
@@ -74,7 +74,7 @@ class ObservableMutableList<T> : MutableList<T> {
     override fun remove(element: T): Boolean {
         val removed = list.remove(element)
         if (removed) {
-            observers.forEach { it.onListChanged() }
+            observers.forEach { it.onListChanged(this) }
         }
         return removed
     }
@@ -82,28 +82,28 @@ class ObservableMutableList<T> : MutableList<T> {
     override fun removeAll(elements: Collection<T>): Boolean {
         val removed = list.removeAll(elements)
         if (removed) {
-            observers.forEach { it.onListChanged() }
+            observers.forEach { it.onListChanged(this) }
         }
         return removed
     }
 
     override fun removeAt(index: Int): T {
         val item = list.removeAt(index)
-        observers.forEach { it.onListChanged() }
+        observers.forEach { it.onListChanged(this) }
         return item
     }
 
     override fun retainAll(elements: Collection<T>): Boolean {
         val retained = list.retainAll(elements)
         if (retained) {
-            observers.forEach { it.onListChanged() }
+            observers.forEach { it.onListChanged(this) }
         }
         return retained
     }
 
     override fun set(index: Int, element: T): T {
         val oldItem = list.set(index, element)
-        observers.forEach { it.onListChanged() }
+        observers.forEach { it.onListChanged(this) }
         return oldItem
     }
 

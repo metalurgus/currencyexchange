@@ -1,8 +1,11 @@
 package com.example.currencyexchange.data.network
 
-import com.example.currencyexchange.data.api.CurrencyExchangeApi
+import com.example.currencyexchange.data.api.CurrencyInteractionApi
 import com.example.currencyexchange.data.api.CurrencyRateApi
+import com.example.currencyexchange.data.api.impl.CurrencyInteractionApiImpl
 import com.example.currencyexchange.data.model.Rate
+import com.example.currencyexchange.data.provider.ExchangeRatesProvider
+import com.example.currencyexchange.data.provider.SharedPrefsProvider
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
@@ -27,13 +30,16 @@ fun provideCurrencyRateApi(retrofit: Retrofit): CurrencyRateApi {
     return retrofit.create(CurrencyRateApi::class.java)
 }
 
-fun provideCurrencyExchangeApi(retrofit: Retrofit): CurrencyExchangeApi {
-    return
+fun provideFakeCurrencyInteractionApi(
+    sharedPrefsProvider: SharedPrefsProvider,
+    exchangeRatesProvider: ExchangeRatesProvider
+): CurrencyInteractionApi {
+    return CurrencyInteractionApiImpl(sharedPrefsProvider, exchangeRatesProvider)
 }
 
 val networkModule = module {
     single { provideGson() }
     single { provideRetrofit(get()) }
     single { provideCurrencyRateApi(get()) }
-    single { provideCurrencyExchangeApi(get()) }
+    single { provideFakeCurrencyInteractionApi(get(), get()) }
 }
