@@ -4,6 +4,8 @@ import com.example.currencyexchange.data.api.CurrencyInteractionApi
 import com.example.currencyexchange.data.api.CurrencyRateApi
 import com.example.currencyexchange.data.api.impl.CurrencyInteractionApiImpl
 import com.example.currencyexchange.data.model.Rate
+import com.example.currencyexchange.data.model.response.ExchangeRatesResponse
+import com.example.currencyexchange.data.provider.CommissionRulesProvider
 import com.example.currencyexchange.data.provider.ExchangeRatesProvider
 import com.example.currencyexchange.data.provider.SharedPrefsProvider
 import com.google.gson.Gson
@@ -16,6 +18,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 fun provideGson(): Gson {
     return GsonBuilder()
         .registerTypeAdapter(object : TypeToken<List<Rate>>() {}.type, RateListDeserializer())
+        .registerTypeAdapter(ExchangeRatesResponse::class.java, ExchangeRatesResponseDeserializer())
         .create()
 }
 
@@ -32,14 +35,15 @@ fun provideCurrencyRateApi(retrofit: Retrofit): CurrencyRateApi {
 
 fun provideFakeCurrencyInteractionApi(
     sharedPrefsProvider: SharedPrefsProvider,
-    exchangeRatesProvider: ExchangeRatesProvider
+    exchangeRatesProvider: ExchangeRatesProvider,
+    commissionRulesProvider: CommissionRulesProvider
 ): CurrencyInteractionApi {
-    return CurrencyInteractionApiImpl(sharedPrefsProvider, exchangeRatesProvider)
+    return CurrencyInteractionApiImpl(sharedPrefsProvider, exchangeRatesProvider, commissionRulesProvider)
 }
 
 val networkModule = module {
     single { provideGson() }
     single { provideRetrofit(get()) }
     single { provideCurrencyRateApi(get()) }
-    single { provideFakeCurrencyInteractionApi(get(), get()) }
+    single { provideFakeCurrencyInteractionApi(get(), get(), get()) }
 }
