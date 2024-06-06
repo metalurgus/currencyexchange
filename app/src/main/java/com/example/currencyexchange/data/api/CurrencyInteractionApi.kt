@@ -7,9 +7,20 @@ import com.example.currencyexchange.data.model.response.GetCommissionFeeForTrans
 import retrofit2.Response
 
 interface CurrencyInteractionApi {
-    suspend fun exchange(fromCurrency: String, toCurrency: String, amount: Double): Response<ExchangeOperationResponse>
+    suspend fun exchange(
+        fromCurrency: String,
+        toCurrency: String,
+        amount: Double
+    ): Response<ExchangeOperationResponse>
+
     suspend fun getBalances(): Response<List<Balance>>
-    suspend fun getCommissionFeeForTransaction(fromCurrency: String, toCurrency: String, amount: Double, transactionNumber:Int): Response<GetCommissionFeeForTransactionResponse>
+    suspend fun getCommissionFeeForTransaction(
+        fromCurrency: String,
+        toCurrency: String,
+        amount: Double,
+        transactionNumber: Int
+    ): Response<GetCommissionFeeForTransactionResponse>
 
     suspend fun getTransactionHistory(): Response<List<TransactionRecord>>
+    fun getOperationNumber(): Response<Int>
 }

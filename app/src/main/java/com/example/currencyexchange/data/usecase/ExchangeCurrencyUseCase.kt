@@ -1,14 +1,14 @@
 package com.example.currencyexchange.data.usecase
 
 import com.example.currencyexchange.data.model.Balance
-import com.example.currencyexchange.data.model.Rate
+import com.example.currencyexchange.data.model.ExchangeRate
 
 abstract class ExchangeCurrencyUseCase :
     UseCase<ExchangeCurrencyUseCase.Result, ExchangeCurrencyUseCase.Params>() {
 
     data class Params(
-        val fromCurrencyRate: Rate,
-        val toCurrencyRate: Rate,
+        val fromCurrencyExchangeRate: ExchangeRate,
+        val toCurrencyExchangeRate: ExchangeRate,
         val amount: Double
     )
 

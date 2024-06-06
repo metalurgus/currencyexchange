@@ -1,6 +1,5 @@
 package com.example.currencyexchange.data.usecase.impl
 
-import com.example.currencyexchange.data.model.Rate
 import com.example.currencyexchange.data.api.CurrencyRateApi
 import com.example.currencyexchange.data.model.response.ExchangeRatesResponse
 import com.example.currencyexchange.data.usecase.GetExchangeRatesUseCase

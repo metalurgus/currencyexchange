@@ -235,4 +235,8 @@ class CurrencyInteractionApiImpl(
     override suspend fun getTransactionHistory(): Response<List<TransactionRecord>> {
         return Response.success(sharedPrefsProvider.getTransactionHistory())
     }
+
+    override fun getOperationNumber(): Response<Int> {
+        return Response.success(sharedPrefsProvider.getTransactionNumber())
+    }
 }

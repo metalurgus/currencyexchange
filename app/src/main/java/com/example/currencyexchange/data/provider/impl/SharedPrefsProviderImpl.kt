@@ -8,7 +8,7 @@ import com.example.currencyexchange.data.util.ObservableMutableList
 import com.google.gson.Gson
 import org.koin.core.context.GlobalContext
 
-class SharedPrefsProviderImpl(private val gson: Gson) : SharedPrefsProvider {
+class SharedPrefsProviderImpl(private val gson: Gson, private val context:Context) : SharedPrefsProvider {
     companion object {
         private const val BALANCES_KEY = "balances"
         private const val TRANSACTION_NUMBER_KEY = "transactionNumber"
@@ -17,7 +17,7 @@ class SharedPrefsProviderImpl(private val gson: Gson) : SharedPrefsProvider {
     }
 
 
-    private val context: Context = GlobalContext.get().get()
+//    private val context: Context = GlobalContext.get().get()
     private val prefs =
         context.getSharedPreferences(SharedPrefsProvider::class.java.name, Context.MODE_PRIVATE)
 

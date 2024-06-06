@@ -5,7 +5,6 @@ import com.example.currencyexchange.data.provider.CommissionRulesProviderImpl
 import com.example.currencyexchange.data.provider.ExchangeRatesProvider
 import com.example.currencyexchange.data.provider.SharedPrefsProvider
 import com.example.currencyexchange.data.provider.impl.ExchangeRatesProviderImpl
-import com.google.gson.Gson
 import org.koin.dsl.module
 
 val testProviderModule = module {

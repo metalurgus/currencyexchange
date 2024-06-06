@@ -1,7 +1,7 @@
 package com.example.currencyexchange.data.network
 
 
-import com.example.currencyexchange.data.model.Rate
+import com.example.currencyexchange.data.model.ExchangeRate
 import com.example.currencyexchange.data.model.response.ExchangeRatesResponse
 import com.google.gson.JsonDeserializationContext
 import com.google.gson.JsonDeserializer
@@ -12,13 +12,13 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-class RateListDeserializer : JsonDeserializer<List<Rate>> {
+class RateListDeserializer : JsonDeserializer<List<ExchangeRate>> {
     override fun deserialize(
         json: JsonElement,
         typeOfT: Type,
         context: JsonDeserializationContext
     ) = json.asJsonObject.entrySet().map {
-        Rate(it.key, it.value.asDouble)
+        ExchangeRate(it.key, it.value.asDouble)
     }
 }
 
@@ -34,11 +34,11 @@ class ExchangeRatesResponseDeserializer : JsonDeserializer<ExchangeRatesResponse
         context: JsonDeserializationContext
     ): ExchangeRatesResponse {
         val jsonObject = json.asJsonObject
-        val base = Rate(jsonObject["base"].asString, 1.0)
+        val base = ExchangeRate(jsonObject["base"].asString, 1.0)
         val date = jsonObject["date"].asString.parseAsDate()
-        val rates = context.deserialize<List<Rate>>(
+        val rates = context.deserialize<List<ExchangeRate>>(
             jsonObject["rates"],
-            object : TypeToken<List<Rate>>() {}.type
+            object : TypeToken<List<ExchangeRate>>() {}.type
         )
         return ExchangeRatesResponse(base, date, rates)
     }

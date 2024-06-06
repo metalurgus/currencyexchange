@@ -18,7 +18,6 @@ class App : Application() {
                 providerModule,
                 networkModule,
                 useCaseModule,
-
             )
         }
     }

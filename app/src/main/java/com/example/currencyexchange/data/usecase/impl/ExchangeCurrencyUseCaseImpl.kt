@@ -9,8 +9,8 @@ class ExchangeCurrencyUseCaseImpl(
 
     override suspend fun run(params: Params): Result {
         val response = currencyInteractionApi.exchange(
-            params.fromCurrencyRate.currency,
-            params.toCurrencyRate.currency,
+            params.fromCurrencyExchangeRate.currency,
+            params.toCurrencyExchangeRate.currency,
             params.amount
         )
         if (response.isSuccessful) {

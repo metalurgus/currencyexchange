@@ -1,12 +1,12 @@
 package com.example.currencyexchange.data.provider.impl
 
-import com.example.currencyexchange.data.model.Rate
+import com.example.currencyexchange.data.model.ExchangeRate
 import com.example.currencyexchange.data.model.response.ExchangeRatesResponse
 import com.example.currencyexchange.data.provider.ExchangeRatesProvider
 
 class ExchangeRatesProviderImpl : ExchangeRatesProvider {
-    private var baseRate: Rate? = null
-    private val exchangeRates: MutableList<Rate> = mutableListOf()
+    private var baseExchangeRate: ExchangeRate? = null
+    private val exchangeRates: MutableList<ExchangeRate> = mutableListOf()
 
     override fun getExchangeRate(fromCurrency: String, toCurrency: String): Double? {
         val fromRate = exchangeRates.firstOrNull { it.currency == fromCurrency }
@@ -20,6 +20,6 @@ class ExchangeRatesProviderImpl : ExchangeRatesProvider {
     override fun setExchangeRates(newExchangeRates: ExchangeRatesResponse) {
         exchangeRates.clear()
         exchangeRates.addAll(newExchangeRates.rates)
-        baseRate = newExchangeRates.base
+        baseExchangeRate = newExchangeRates.base
     }
 }
