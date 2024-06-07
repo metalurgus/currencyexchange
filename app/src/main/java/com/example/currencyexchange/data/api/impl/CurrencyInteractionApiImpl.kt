@@ -186,7 +186,6 @@ class CurrencyInteractionApiImpl(
 
         sharedPrefsProvider.saveBalance(newFromBalance)
         sharedPrefsProvider.saveBalance(newToBalance)
-
         sharedPrefsProvider.saveTransactionRecord(
             TransactionRecord(
                 fromCurrency,
@@ -216,6 +215,19 @@ class CurrencyInteractionApiImpl(
 
     override suspend fun getBalances(): Response<List<Balance>> {
         return Response.success(sharedPrefsProvider.getAllBalances())
+    }
+
+    override suspend fun getBalance(currency: String): Response<Balance> {
+        return sharedPrefsProvider.getBalance(currency)?.let { Response.success(it) }
+            ?: Response.error(
+                EMPTY_BODY,
+                okhttp3.Response.Builder()
+                    .request(EMPTY_REQUEST)
+                    .protocol(okhttp3.Protocol.HTTP_1_1)
+                    .code(400)
+                    .message("Balance for currency $currency not found")
+                    .build()
+            )
     }
 
     override suspend fun getCommissionFeeForTransaction(

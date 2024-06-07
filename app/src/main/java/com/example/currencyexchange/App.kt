@@ -3,6 +3,7 @@ package com.example.currencyexchange
 import android.app.Application
 import com.example.currencyexchange.data.network.networkModule
 import com.example.currencyexchange.data.provider.providerModule
+import com.example.currencyexchange.data.repository.repositoryModule
 import com.example.currencyexchange.data.usecase.useCaseModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
@@ -17,6 +18,7 @@ class App : Application() {
             modules(
                 providerModule,
                 networkModule,
+                repositoryModule,
                 useCaseModule,
             )
         }

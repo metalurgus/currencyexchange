@@ -1,5 +1,6 @@
 package com.example.currencyexchange.data.provider
 
+import com.example.currencyexchange.data.provider.impl.CommissionRulesProviderImpl
 import com.example.currencyexchange.data.provider.impl.ExchangeRatesProviderImpl
 import com.example.currencyexchange.data.provider.impl.SharedPrefsProviderImpl
 import org.koin.dsl.module

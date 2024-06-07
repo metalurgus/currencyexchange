@@ -1,7 +1,7 @@
 package com.example.currencyexchangetesttask.data
 
 import com.example.currencyexchange.data.provider.CommissionRulesProvider
-import com.example.currencyexchange.data.provider.CommissionRulesProviderImpl
+import com.example.currencyexchange.data.provider.impl.CommissionRulesProviderImpl
 import com.example.currencyexchange.data.provider.ExchangeRatesProvider
 import com.example.currencyexchange.data.provider.SharedPrefsProvider
 import com.example.currencyexchange.data.provider.impl.ExchangeRatesProviderImpl

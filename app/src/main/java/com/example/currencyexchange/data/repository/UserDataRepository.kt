@@ -11,8 +11,8 @@ class UserDataRepositoryImpl(private val currencyInteractionApi: CurrencyInterac
         return currencyInteractionApi.getBalances().bodyOrThrow
     }
 
-    override suspend fun getBalance(currency: String): Balance? {
-        return getBalances().find { it.currency == currency }
+    override suspend fun getBalance(currency: String): Balance {
+        return currencyInteractionApi.getBalance(currency).bodyOrThrow
     }
 
     override suspend fun getOperationNumber(): Int {
@@ -26,7 +26,7 @@ class UserDataRepositoryImpl(private val currencyInteractionApi: CurrencyInterac
 
 interface UserDataRepository {
     suspend fun getBalances(): List<Balance>
-    suspend fun getBalance(currency: String): Balance?
+    suspend fun getBalance(currency: String): Balance
     suspend fun getOperationNumber(): Int
     suspend fun getTransactionHistory(): List<TransactionRecord>
 }

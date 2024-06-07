@@ -6,8 +6,8 @@ val <T> Response<T>.bodyOrThrow: T
     get() {
         if (this.isSuccessful) {
             return this.body()
-                ?: throw Exception(message = "The body is null")
+                ?: throw Exception("The body is null")
         } else {
-            throw Exception(message = this.message())
+            throw Exception(this.message())
         }
     }

@@ -14,6 +14,8 @@ interface CurrencyInteractionApi {
     ): Response<ExchangeOperationResponse>
 
     suspend fun getBalances(): Response<List<Balance>>
+
+    suspend fun getBalance(currency: String): Response<Balance>
     suspend fun getCommissionFeeForTransaction(
         fromCurrency: String,
         toCurrency: String,
