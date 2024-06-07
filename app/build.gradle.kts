@@ -7,6 +7,10 @@ android {
     namespace = "com.example.currencyexchangetesttask"
     compileSdk = 34
 
+    buildFeatures {
+        viewBinding = true
+    }
+
     defaultConfig {
         applicationId = "com.example.currencyexchangetesttask"
         minSdk = 23

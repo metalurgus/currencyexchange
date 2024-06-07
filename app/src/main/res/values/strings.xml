@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Currency exchange test task</string>
+    <string name="my_balances">MY BALANCES</string>
+    <string name="currency_rates">CURRENCY RATES</string>
+    <string name="currency_exchange">CURRENCY EXCHANGE</string>
+    <string name="main_activity_title">Currency Converter</string>
 </resources>
