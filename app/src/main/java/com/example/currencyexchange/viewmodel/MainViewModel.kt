@@ -6,14 +6,12 @@ import androidx.lifecycle.viewModelScope
 import com.example.currencyexchange.data.Result
 import com.example.currencyexchange.data.model.Balance
 import com.example.currencyexchange.data.model.ExchangeRate
-import com.example.currencyexchange.data.model.response.ExchangeRatesResponse
 import com.example.currencyexchange.data.usecase.GetExchangeRatesUseCase
 import com.example.currencyexchange.data.usecase.GetUserBalancesUseCase
 import com.example.currencyexchange.data.usecase.UseCase
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.fold
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -34,11 +32,12 @@ class MainViewModel(
         val isLoading: Boolean = false,
         val fromCurrency: String? = null,
         val toCurrency: String? = null,
-        val amount: Double = 0.0,
+        val amountText: String = "",
         val exchangeRate: Double = 0.0,
         val result: Double = 0.0,
         val balances: List<Balance> = emptyList(),
         val exchangeRates: List<ExchangeRate> = emptyList(),
+        val sellableCurrencies: Collection<String> = emptyList(),
     )
 
     data class MainViewEffect(
@@ -68,8 +67,20 @@ class MainViewModel(
                 when (result) {
                     is Result.Success -> {
                         val exchangeRatesResponse = result.data
+                        val sellableCurrencies =
+                            exchangeRatesResponse
+                                .rates
+                                .map { it.currency } intersect
+                                    _mainViewStateFlow
+                                        .value
+                                        .balances
+                                        .filter { it.amount > 0 }
+                                        .map { it.currency }
+                                        .toSet()
+
                         _mainViewStateFlow.value = _mainViewStateFlow.value.copy(
-                            exchangeRates = exchangeRatesResponse.rates
+                            exchangeRates = exchangeRatesResponse.rates,
+                            sellableCurrencies = sellableCurrencies
                         )
                     }
 
@@ -94,9 +105,18 @@ class MainViewModel(
                 when (result) {
                     is Result.Success -> {
                         val balances = result.data
+                        val sellableCurrencies =
+                            if (_mainViewStateFlow.value.exchangeRates.isEmpty()) {
+                                mutableListOf()
+                            } else {
+                                balances.filter { it.amount > 0 }
+                                    .map { it.currency } intersect _mainViewStateFlow.value.exchangeRates.map { it.currency }
+                                    .toSet()
+                            }
                         _mainViewStateFlow.value = _mainViewStateFlow.value.copy(
                             isLoading = false,
-                            balances = balances
+                            balances = balances,
+                            sellableCurrencies = sellableCurrencies
                         )
                     }
 
@@ -123,5 +143,17 @@ class MainViewModel(
                 }
             }
         }
+    }
+
+    fun updateSellFromCurrency(selectedCurrency: String) {
+        _mainViewStateFlow.value = _mainViewStateFlow.value.copy(
+            fromCurrency = selectedCurrency
+        )
+    }
+
+    fun updateAmount(amount: String) {
+        _mainViewStateFlow.value = _mainViewStateFlow.value.copy(
+            amountText = amount
+        )
     }
 }

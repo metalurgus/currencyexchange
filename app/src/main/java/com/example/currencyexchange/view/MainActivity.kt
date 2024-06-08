@@ -2,7 +2,11 @@ package com.example.currencyexchange.view
 
 import android.graphics.Rect
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.View
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -18,6 +22,7 @@ import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : AppCompatActivity() {
+    private var fromCurrenciesAdapter: ArrayAdapter<String>? = null
     private lateinit var binding: ActivityMainBinding
     private val viewModel: MainViewModel by viewModel()
 
@@ -37,6 +42,38 @@ class MainActivity : AppCompatActivity() {
         val space = resources.getDimensionPixelSize(R.dimen.item_space)
         binding.recyclerViewMyBalances.addItemDecoration(SpaceItemDecoration(space))
         binding.recyclerViewCurrencyRates.addItemDecoration(SpaceItemDecoration(space))
+        fromCurrenciesAdapter =
+            ArrayAdapter(this, android.R.layout.simple_spinner_item, mutableListOf<String>())
+        fromCurrenciesAdapter?.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        binding.spinnerSellCurrency.adapter = fromCurrenciesAdapter
+        binding.spinnerSellCurrency.onItemSelectedListener =
+            object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(
+                    parent: AdapterView<*>,
+                    view: View,
+                    position: Int,
+                    id: Long
+                ) {
+                    val selectedCurrency = parent.getItemAtPosition(position).toString()
+                    viewModel.updateSellFromCurrency(selectedCurrency)
+                }
+
+                override fun onNothingSelected(parent: AdapterView<*>) {
+                    // Do something when nothing is selected
+                }
+            }
+
+        binding.editTextSellAmount.addTextChangedListener(
+            object : TextWatcher {
+                override fun beforeTextChanged(s: CharSequence?, st: Int, c: Int, a: Int) {}
+
+                override fun onTextChanged(s: CharSequence?, st: Int, b: Int, c: Int) {}
+
+                override fun afterTextChanged(s: Editable?) {
+                    viewModel.updateAmount(s.toString())
+                }
+            }
+        )
 
         subscribeToViewStateAndEffects()
         viewModel.updateBalances()
@@ -51,6 +88,17 @@ class MainActivity : AppCompatActivity() {
                     (binding.recyclerViewCurrencyRates.adapter as CurrencyRateAdapter).submitList(
                         viewState.exchangeRates
                     )
+                    fromCurrenciesAdapter?.let {
+                        it.clear()
+                        it.addAll(viewState.sellableCurrencies)
+                        binding.spinnerSellCurrency.setSelection(
+                            it.getPosition(viewState.fromCurrency)
+                        )
+                    }
+                    if (binding.editTextSellAmount.text.toString() != viewState.amountText) {
+                        binding.editTextSellAmount.setText(viewState.amountText)
+                    }
+
                 }
             }
         }
@@ -88,10 +136,10 @@ class MainActivity : AppCompatActivity() {
             outRect.bottom = space
 
             val itemPosition = parent.getChildAdapterPosition(view)
-            if(itemPosition != 0) {
+            if (itemPosition != 0) {
                 outRect.left = space
             }
-            if(itemPosition == parent.adapter?.itemCount?.minus(1)) {
+            if (itemPosition == parent.adapter?.itemCount?.minus(1)) {
                 outRect.right = space
             }
         }

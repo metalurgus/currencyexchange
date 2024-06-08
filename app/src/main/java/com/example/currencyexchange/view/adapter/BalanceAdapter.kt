@@ -7,17 +7,18 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
 import com.example.currencyexchange.data.model.Balance
-import com.example.currencyexchangetesttask.databinding.ListItemBalanceBinding
+import com.example.currencyexchangetesttask.databinding.ListItemBalanceAndRateBinding
 
-class BalanceAdapter : GenericAdapter<Balance, ListItemBalanceBinding>(BalanceDiffCallback()) {
+class BalanceAdapter :
+    GenericAdapter<Balance, ListItemBalanceAndRateBinding>(BalanceDiffCallback()) {
 
-    override fun inflateBinding(parent: ViewGroup): ListItemBalanceBinding {
+    override fun inflateBinding(parent: ViewGroup): ListItemBalanceAndRateBinding {
         val inflater = LayoutInflater.from(parent.context)
-        return ListItemBalanceBinding.inflate(inflater, parent, false)
+        return ListItemBalanceAndRateBinding.inflate(inflater, parent, false)
     }
 
     override fun onBindViewHolder(item: Balance, binding: ViewBinding) {
-        (binding as ListItemBalanceBinding).textViewBalance.text = item.toString()
+        (binding as ListItemBalanceAndRateBinding).textViewBalanceAndRate.text = item.toString()
     }
 }
 
