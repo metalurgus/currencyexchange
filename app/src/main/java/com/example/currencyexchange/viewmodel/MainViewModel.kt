@@ -1,18 +1,34 @@
 package com.example.currencyexchange.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.currencyexchange.data.Result
 import com.example.currencyexchange.data.model.Balance
 import com.example.currencyexchange.data.model.ExchangeRate
+import com.example.currencyexchange.data.model.response.ExchangeRatesResponse
+import com.example.currencyexchange.data.usecase.GetExchangeRatesUseCase
+import com.example.currencyexchange.data.usecase.GetUserBalancesUseCase
+import com.example.currencyexchange.data.usecase.UseCase
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.fold
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
-class MainViewModel : ViewModel() {
+class MainViewModel(
+    private val getExchangeRatesUseCase: GetExchangeRatesUseCase,
+    private val getUserBalancesUseCase: GetUserBalancesUseCase
+) : ViewModel() {
 
     private val _mainViewStateFlow = MutableStateFlow(MainViewState())
-    val mainViewStateFlow = _mainViewStateFlow.asStateFlow()
+    val viewState = _mainViewStateFlow.asStateFlow()
 
     private val _mainViewEffectFlow = MutableStateFlow(MainViewEffect())
-    val mainViewEffectFlow = _mainViewEffectFlow.asStateFlow()
+    val viewEffect = _mainViewEffectFlow.asStateFlow()
+
+    private var isUpdatingExchangeRates = false
 
     data class MainViewState(
         val isLoading: Boolean = false,
@@ -29,4 +45,83 @@ class MainViewModel : ViewModel() {
         val message: String? = null,
         val errorMessage: String? = null,
     )
+
+
+    fun startUpdatingCurrencyRates() {
+        isUpdatingExchangeRates = true
+        viewModelScope.launch {
+            while (isUpdatingExchangeRates) {
+                updateCurrencyRates()
+                delay(5000) // delay for 5 seconds
+            }
+        }
+    }
+
+    fun stopUpdatingCurrencyRates() {
+        isUpdatingExchangeRates = false
+    }
+
+    private fun updateCurrencyRates() {
+        Log.d("MainViewModel", "updateCurrencyRates")
+        viewModelScope.launch {
+            getExchangeRatesUseCase.run(UseCase.None).collect { result ->
+                when (result) {
+                    is Result.Success -> {
+                        val exchangeRatesResponse = result.data
+                        _mainViewStateFlow.value = _mainViewStateFlow.value.copy(
+                            exchangeRates = exchangeRatesResponse.rates
+                        )
+                    }
+
+                    is Result.Error -> {
+                        _mainViewEffectFlow.update {
+                            it.copy(
+                                errorMessage = result.exception.message
+                            )
+                        }
+                    }
+
+                    else -> Unit
+                }
+            }
+        }
+    }
+
+    fun updateBalances() {
+        Log.d("MainViewModel", "updateBalances")
+        viewModelScope.launch {
+            getUserBalancesUseCase.run(UseCase.None).collect { result ->
+                when (result) {
+                    is Result.Success -> {
+                        val balances = result.data
+                        _mainViewStateFlow.value = _mainViewStateFlow.value.copy(
+                            isLoading = false,
+                            balances = balances
+                        )
+                    }
+
+                    is Result.Error -> {
+                        _mainViewStateFlow.update {
+                            it.copy(
+                                isLoading = false
+                            )
+                        }
+                        _mainViewEffectFlow.update {
+                            it.copy(
+                                errorMessage = result.exception.message
+                            )
+                        }
+                    }
+
+                    is Result.Loading -> {
+                        _mainViewStateFlow.update {
+                            it.copy(
+                                isLoading = true
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

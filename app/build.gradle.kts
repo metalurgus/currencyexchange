@@ -43,6 +43,7 @@ dependencies {
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.material)
     implementation(libs.androidx.monitor)
     implementation(libs.androidx.runner)
@@ -66,6 +67,7 @@ dependencies {
     //KOIN
     implementation(libs.koin.android)
     implementation(libs.koin.core)
+//    implementation (libs.koin.androidx.viewmodel)
     androidTestImplementation(libs.koin.test)
     testImplementation(libs.koin.test)
 
