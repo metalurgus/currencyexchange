@@ -10,6 +10,13 @@ interface CurrencyInteractionApi {
     suspend fun exchange(
         fromCurrency: String,
         toCurrency: String,
+        amount: Double,
+        isPreview: Boolean = false
+    ): Response<ExchangeOperationResponse>
+
+    suspend fun previewExchange(
+        fromCurrency: String,
+        toCurrency: String,
         amount: Double
     ): Response<ExchangeOperationResponse>
 

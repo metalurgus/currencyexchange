@@ -4,7 +4,7 @@ import org.koin.dsl.module
 
 val repositoryModule = module {
     single<UserDataRepository> { UserDataRepositoryImpl(get()) }
-    single<ExchangeRateRepository> { ExchangeRateRepositoryImpl(get()) }
+    single<ExchangeRateRepository> { ExchangeRateRepositoryImpl(get(), get()) }
     single<CurrencyExchangeRepository> { CurrencyExchangeRepositoryImpl(get()) }
 
 }

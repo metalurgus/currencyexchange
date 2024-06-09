@@ -5,4 +5,7 @@
     <string name="currency_exchange">CURRENCY EXCHANGE</string>
     <string name="main_activity_title">Currency Converter</string>
     <string name="sell">Sell</string>
+    <string name="failed_to_load_balances">Failed to load balances...</string>
+    <string name="buy">Buy</string>
+    <string name="failed_to_load_exchange_details">Failed to load exchange operation details</string>
 </resources>

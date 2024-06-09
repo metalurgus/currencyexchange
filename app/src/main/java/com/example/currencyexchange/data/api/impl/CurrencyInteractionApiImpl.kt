@@ -28,7 +28,8 @@ class CurrencyInteractionApiImpl(
     override suspend fun exchange(
         fromCurrency: String,
         toCurrency: String,
-        amount: Double
+        amount: Double,
+        isPreview: Boolean
     ): Response<ExchangeOperationResponse> {
         val fromBalance = sharedPrefsProvider.getBalance(fromCurrency)
         var toBalance = sharedPrefsProvider.getBalance(toCurrency)
@@ -42,31 +43,7 @@ class CurrencyInteractionApiImpl(
                 .message("Source balance not found")
                 .build()
         ).run {
-            sharedPrefsProvider.saveTransactionRecord(
-                TransactionRecord(
-                    fromCurrency,
-                    toCurrency,
-                    amount,
-                    0.0,
-                    sharedPrefsProvider.getTransactionNumber(),
-                    0.0,
-                    Date().time,
-                    "Failed Exchange from $fromCurrency to $toCurrency. Source balance not found",
-                    false
-                )
-            )
-            this
-        }
-        if (amount > fromBalance.amount) {
-            return Response.error<ExchangeOperationResponse?>(
-                EMPTY_BODY,
-                okhttp3.Response.Builder()
-                    .request(EMPTY_REQUEST)
-                    .protocol(okhttp3.Protocol.HTTP_1_1)
-                    .code(400)
-                    .message("Not enough money")
-                    .build()
-            ).run {
+            if (!isPreview) {
                 sharedPrefsProvider.saveTransactionRecord(
                     TransactionRecord(
                         fromCurrency,
@@ -76,12 +53,40 @@ class CurrencyInteractionApiImpl(
                         sharedPrefsProvider.getTransactionNumber(),
                         0.0,
                         Date().time,
-                        "Failed Exchange from $fromCurrency to $toCurrency. Not enough money",
+                        "Failed Exchange from $fromCurrency to $toCurrency. Source balance not found",
                         false
                     )
                 )
-                this
+            }
+            this
+        }
+        if (!isPreview) {
+            if (amount > fromBalance.amount) {
+                return Response.error<ExchangeOperationResponse?>(
+                    EMPTY_BODY,
+                    okhttp3.Response.Builder()
+                        .request(EMPTY_REQUEST)
+                        .protocol(okhttp3.Protocol.HTTP_1_1)
+                        .code(400)
+                        .message("Not enough money")
+                        .build()
+                ).run {
+                    sharedPrefsProvider.saveTransactionRecord(
+                        TransactionRecord(
+                            fromCurrency,
+                            toCurrency,
+                            amount,
+                            0.0,
+                            sharedPrefsProvider.getTransactionNumber(),
+                            0.0,
+                            Date().time,
+                            "Failed Exchange from $fromCurrency to $toCurrency. Not enough money",
+                            false
+                        )
+                    )
 
+                    this
+                }
             }
         }
         val commissionResponse = getCommissionFeeForTransaction(
@@ -100,19 +105,21 @@ class CurrencyInteractionApiImpl(
                     .message("Exchange between $fromCurrency and $toCurrency is not currently available")
                     .build()
             ).run {
-                sharedPrefsProvider.saveTransactionRecord(
-                    TransactionRecord(
-                        fromCurrency,
-                        toCurrency,
-                        amount,
-                        0.0,
-                        sharedPrefsProvider.getTransactionNumber(),
-                        0.0,
-                        Date().time,
-                        "Failed Exchange from $fromCurrency to $toCurrency. Commission fee not available",
-                        false
+                if (!isPreview) {
+                    sharedPrefsProvider.saveTransactionRecord(
+                        TransactionRecord(
+                            fromCurrency,
+                            toCurrency,
+                            amount,
+                            0.0,
+                            sharedPrefsProvider.getTransactionNumber(),
+                            0.0,
+                            Date().time,
+                            "Failed Exchange from $fromCurrency to $toCurrency. Commission fee not available",
+                            false
+                        )
                     )
-                )
+                }
                 this
             }
         }
@@ -136,19 +143,21 @@ class CurrencyInteractionApiImpl(
                     .message("Commission fee is higher then exchanging amount")
                     .build()
             ).run {
-                sharedPrefsProvider.saveTransactionRecord(
-                    TransactionRecord(
-                        fromCurrency,
-                        toCurrency,
-                        amount,
-                        0.0,
-                        sharedPrefsProvider.getTransactionNumber(),
-                        0.0,
-                        Date().time,
-                        "Failed Exchange from $fromCurrency to $toCurrency. Commission fee is higher then exchanging amount",
-                        false
+                if (!isPreview) {
+                    sharedPrefsProvider.saveTransactionRecord(
+                        TransactionRecord(
+                            fromCurrency,
+                            toCurrency,
+                            amount,
+                            0.0,
+                            sharedPrefsProvider.getTransactionNumber(),
+                            0.0,
+                            Date().time,
+                            "Failed Exchange from $fromCurrency to $toCurrency. Commission fee is higher then exchanging amount",
+                            false
+                        )
                     )
-                )
+                }
                 this
             }
         }
@@ -163,54 +172,67 @@ class CurrencyInteractionApiImpl(
                     .message("Exchange between $fromCurrency and $toCurrency is not currently available")
                     .build()
             ).run {
-                sharedPrefsProvider.saveTransactionRecord(
-                    TransactionRecord(
-                        fromCurrency,
-                        toCurrency,
-                        amount,
-                        0.0,
-                        sharedPrefsProvider.getTransactionNumber(),
-                        0.0,
-                        Date().time,
-                        "Failed Exchange from $fromCurrency to $toCurrency. Exchange rate not available",
-                        false
+                if (!isPreview) {
+                    sharedPrefsProvider.saveTransactionRecord(
+                        TransactionRecord(
+                            fromCurrency,
+                            toCurrency,
+                            amount,
+                            0.0,
+                            sharedPrefsProvider.getTransactionNumber(),
+                            0.0,
+                            Date().time,
+                            "Failed Exchange from $fromCurrency to $toCurrency. Exchange rate not available",
+                            false
+                        )
                     )
-                )
+                }
                 this
             }
 
         val exchangedAmount = exchangingAmount * exchangeRate
-
         val newFromBalance = fromBalance.copy(amount = fromBalance.amount - amount)
         val newToBalance = toBalance.copy(amount = toBalance.amount + exchangedAmount)
+        if (!isPreview) {
 
-        sharedPrefsProvider.saveBalance(newFromBalance)
-        sharedPrefsProvider.saveBalance(newToBalance)
-        sharedPrefsProvider.saveTransactionRecord(
-            TransactionRecord(
-                fromCurrency,
-                toCurrency,
-                amount,
-                exchangeRate,
-                sharedPrefsProvider.getTransactionNumber(),
-                commissionFee,
-                Date().time,
-                "Successful Exchange from $fromCurrency to $toCurrency. Commission fee: $commissionFee $fromCurrency",
-                true
+
+            sharedPrefsProvider.saveBalance(newFromBalance)
+            sharedPrefsProvider.saveBalance(newToBalance)
+            sharedPrefsProvider.saveTransactionRecord(
+                TransactionRecord(
+                    fromCurrency,
+                    toCurrency,
+                    amount,
+                    exchangeRate,
+                    sharedPrefsProvider.getTransactionNumber(),
+                    commissionFee,
+                    Date().time,
+                    "Successful Exchange from $fromCurrency to $toCurrency. Commission fee: $commissionFee $fromCurrency",
+                    true
+                )
             )
-        )
-        sharedPrefsProvider.increaseTransactionNumber()
+            sharedPrefsProvider.increaseTransactionNumber()
+        }
 
 
         return Response.success(
             ExchangeOperationResponse(
                 newFromBalance,
                 newToBalance,
+                exchangedAmount,
                 commissionFee,
                 exchangeRate,
                 "Commission fee: $commissionFee $fromCurrency"
             )
         )
+    }
+
+    override suspend fun previewExchange(
+        fromCurrency: String,
+        toCurrency: String,
+        amount: Double
+    ): Response<ExchangeOperationResponse> {
+        return exchange(fromCurrency, toCurrency, amount, true)
     }
 
     override suspend fun getBalances(): Response<List<Balance>> {
@@ -241,7 +263,12 @@ class CurrencyInteractionApiImpl(
                     && it.dateRange.isInRange(Date())
                     && it.transactionNumberRange.isInRange(transactionNumber)
         }.maxByOrNull { it.priority } ?: CommissionRule.DEFAULT_RULE
-        return Response.success(GetCommissionFeeForTransactionResponse(rule.getFee(amount), rule))
+        return Response.success(
+            GetCommissionFeeForTransactionResponse(
+                rule.getFee(amount),
+                rule
+            )
+        )
     }
 
     override suspend fun getTransactionHistory(): Response<List<TransactionRecord>> {

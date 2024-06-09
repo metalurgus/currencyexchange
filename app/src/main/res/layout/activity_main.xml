@@ -20,6 +20,17 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <ImageView
+            android:id="@+id/imageViewWarningBalances"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:src="@drawable/ic_exclamation"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@id/titleMyBalances"
+            app:layout_constraintStart_toEndOf="@+id/titleMyBalances"
+            app:layout_constraintTop_toTopOf="@+id/titleMyBalances" />
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerViewMyBalances"
             android:layout_width="0dp"
@@ -38,6 +49,17 @@
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/recyclerViewMyBalances" />
+
+        <ImageView
+            android:id="@+id/imageViewWarningCurrencyRates"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:src="@drawable/ic_exclamation"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@id/titleCurrencyRates"
+            app:layout_constraintStart_toEndOf="@+id/titleCurrencyRates"
+            app:layout_constraintTop_toTopOf="@+id/titleCurrencyRates" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerViewCurrencyRates"
@@ -89,15 +111,16 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <EditText
-                android:digits="1234567890.,"
                 android:id="@+id/editTextSellAmount"
                 android:layout_width="0dp"
-                android:layout_marginStart="20dp"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
                 android:layout_marginEnd="20dp"
+                android:digits="1234567890.,"
                 android:gravity="end"
                 android:inputType="numberDecimal"
                 android:textColor="@color/black"
+                android:textSize="18sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/spinnerSellCurrency"
                 app:layout_constraintStart_toEndOf="@id/textViewSell"
@@ -107,14 +130,15 @@
 
             <Spinner
                 android:id="@+id/spinnerSellCurrency"
-                android:layout_width="wrap_content"
+                android:layout_width="100dp"
                 android:layout_height="wrap_content"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <LinearLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/linearLayoutBuy"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -124,7 +148,51 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/linearLayoutSell">
 
-        </LinearLayout>
+            <ImageView
+                android:id="@+id/imageViewBuy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/icon_buy"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/textViewBuy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:text="@string/buy"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@id/imageViewBuy"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/textViewBuyAmount"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
+                android:gravity="end"
+                android:textColor="#01A141"
+                android:textSize="18sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/spinnerBuyCurrency"
+                app:layout_constraintStart_toEndOf="@id/textViewBuy"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="+1100.00" />
+
+
+            <Spinner
+                android:id="@+id/spinnerBuyCurrency"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

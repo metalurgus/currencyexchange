@@ -8,10 +8,20 @@ class CurrencyExchangeRepositoryImpl(private val currencyInteractionApi: Currenc
     override suspend fun exchange(fromCurrency: String, toCurrency: String, amount: Double): ExchangeOperationResponse {
         return currencyInteractionApi.exchange(fromCurrency, toCurrency, amount).bodyOrThrow
     }
+
+    override suspend fun previewExchange(fromCurrency: String, toCurrency: String, amount: Double): ExchangeOperationResponse {
+        return currencyInteractionApi.previewExchange(fromCurrency, toCurrency, amount).bodyOrThrow
+    }
 }
 
 interface CurrencyExchangeRepository {
     suspend fun exchange(
+        fromCurrency: String,
+        toCurrency: String,
+        amount: Double
+    ): ExchangeOperationResponse
+
+    suspend fun previewExchange(
         fromCurrency: String,
         toCurrency: String,
         amount: Double

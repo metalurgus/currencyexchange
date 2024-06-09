@@ -1,5 +1,6 @@
 package com.example.currencyexchange.view
 
+import android.graphics.Color
 import android.graphics.Rect
 import android.os.Bundle
 import android.text.Editable
@@ -13,16 +14,19 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.currencyexchange.util.toCurrencyString
 import com.example.currencyexchange.view.adapter.BalanceAdapter
 import com.example.currencyexchange.view.adapter.CurrencyRateAdapter
 import com.example.currencyexchange.viewmodel.MainViewModel
 import com.example.currencyexchangetesttask.R
 import com.example.currencyexchangetesttask.databinding.ActivityMainBinding
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : AppCompatActivity() {
     private var fromCurrenciesAdapter: ArrayAdapter<String>? = null
+    private var toCurrenciesAdapter: ArrayAdapter<String>? = null
     private lateinit var binding: ActivityMainBinding
     private val viewModel: MainViewModel by viewModel()
 
@@ -45,6 +49,10 @@ class MainActivity : AppCompatActivity() {
         fromCurrenciesAdapter =
             ArrayAdapter(this, android.R.layout.simple_spinner_item, mutableListOf<String>())
         fromCurrenciesAdapter?.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+
+        toCurrenciesAdapter =
+            ArrayAdapter(this, android.R.layout.simple_spinner_item, mutableListOf<String>())
+        toCurrenciesAdapter?.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         binding.spinnerSellCurrency.adapter = fromCurrenciesAdapter
         binding.spinnerSellCurrency.onItemSelectedListener =
             object : AdapterView.OnItemSelectedListener {
@@ -55,7 +63,25 @@ class MainActivity : AppCompatActivity() {
                     id: Long
                 ) {
                     val selectedCurrency = parent.getItemAtPosition(position).toString()
-                    viewModel.updateSellFromCurrency(selectedCurrency)
+                    viewModel.updateFromCurrency(selectedCurrency)
+                }
+
+                override fun onNothingSelected(parent: AdapterView<*>) {
+                    // Do something when nothing is selected
+                }
+            }
+
+        binding.spinnerBuyCurrency.adapter = toCurrenciesAdapter
+        binding.spinnerBuyCurrency.onItemSelectedListener =
+            object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(
+                    parent: AdapterView<*>,
+                    view: View,
+                    position: Int,
+                    id: Long
+                ) {
+                    val selectedCurrency = parent.getItemAtPosition(position).toString()
+                    viewModel.updateToCurrency(selectedCurrency)
                 }
 
                 override fun onNothingSelected(parent: AdapterView<*>) {
@@ -95,8 +121,23 @@ class MainActivity : AppCompatActivity() {
                             it.getPosition(viewState.fromCurrency)
                         )
                     }
+                    toCurrenciesAdapter?.let {
+                        it.clear()
+                        it.addAll(viewState.buyableCurrencies)
+                        binding.spinnerBuyCurrency.setSelection(
+                            it.getPosition(viewState.toCurrency)
+                        )
+                    }
                     if (binding.editTextSellAmount.text.toString() != viewState.amountText) {
                         binding.editTextSellAmount.setText(viewState.amountText)
+                    }
+
+                    binding.imageViewWarningBalances.visibility =
+                        if (viewState.balancesError) View.VISIBLE else View.GONE
+                    binding.imageViewWarningCurrencyRates.visibility =
+                        if (viewState.exchangeRatesError) View.VISIBLE else View.GONE
+                    if (binding.textViewBuyAmount.text.toString() != viewState.exchangeResult.toCurrencyString()) {
+                        binding.textViewBuyAmount.setText(viewState.exchangeResult.toCurrencyString())
                     }
 
                 }
@@ -106,10 +147,16 @@ class MainActivity : AppCompatActivity() {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.viewEffect.collect { viewEffect ->
                     viewEffect.message?.let { message ->
-                        // Show message
+                        Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).apply {
+                            setBackgroundTint(Color.BLUE)
+                            show()
+                        }
                     }
                     viewEffect.errorMessage?.let { errorMessage ->
-                        // Show error message
+                        Snackbar.make(binding.root, errorMessage, Snackbar.LENGTH_LONG).apply {
+                            setBackgroundTint(Color.RED)
+                            show()
+                        }
                     }
                 }
             }
