@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.currencyexchange.data.Result
 import com.example.currencyexchange.data.model.Balance
 import com.example.currencyexchange.data.model.ExchangeRate
+import com.example.currencyexchange.data.usecase.ExchangeCurrencyUseCase
 import com.example.currencyexchange.data.usecase.GetExchangeRatesUseCase
 import com.example.currencyexchange.data.usecase.GetUserBalancesUseCase
 import com.example.currencyexchange.data.usecase.PreviewExchangeCurrencyUseCase
@@ -23,6 +24,7 @@ class MainViewModel(
     private val getExchangeRatesUseCase: GetExchangeRatesUseCase,
     private val getUserBalancesUseCase: GetUserBalancesUseCase,
     private val previewExchangeCurrencyUseCase: PreviewExchangeCurrencyUseCase,
+    private val exchangeCurrencyUseCase: ExchangeCurrencyUseCase,
     private val getString: (Int) -> String
 ) : ViewModel() {
 
@@ -46,8 +48,32 @@ class MainViewModel(
         val sellableCurrencies: Collection<String> = emptyList(),
         val buyableCurrencies: Collection<String> = emptyList(),
         val balancesError: Boolean = false,
-        val exchangeRatesError: Boolean = false
-    )
+        val exchangeRatesError: Boolean = false,
+        val exchangeEnabled: Boolean = false
+    ) {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+
+            other as MainViewState
+
+            if (isLoading != other.isLoading) return false
+            if (fromCurrency != other.fromCurrency) return false
+            if (toCurrency != other.toCurrency) return false
+            if (amountText != other.amountText) return false
+            if (exchangeRate != other.exchangeRate) return false
+            if (exchangeResult != other.exchangeResult) return false
+            if (balances != other.balances) return false
+            if (exchangeRates != other.exchangeRates) return false
+            if (sellableCurrencies != other.sellableCurrencies) return false
+            if (buyableCurrencies != other.buyableCurrencies) return false
+            if (balancesError != other.balancesError) return false
+            if (exchangeRatesError != other.exchangeRatesError) return false
+            if (exchangeEnabled != other.exchangeEnabled) return false
+
+            return true
+        }
+    }
 
     data class MainViewEffect(
         val message: String? = null,
@@ -165,6 +191,7 @@ class MainViewModel(
             fromCurrency = selectedCurrency
         )
         previewExchange()
+        updateExchangeEnabled()
     }
 
     fun updateAmount(amount: String) {
@@ -172,6 +199,7 @@ class MainViewModel(
             amountText = amount
         )
         previewExchange()
+        updateExchangeEnabled()
     }
 
     fun updateToCurrency(selectedCurrency: String) {
@@ -179,6 +207,7 @@ class MainViewModel(
             toCurrency = selectedCurrency
         )
         previewExchange()
+        updateExchangeEnabled()
     }
 
     private fun previewExchange() {
@@ -220,6 +249,93 @@ class MainViewModel(
                     exchangeResult = 0.0
                 )
             }
+        }
+    }
+
+    private fun updateExchangeEnabled() {
+        var exchangeEnabled = true
+        with(_mainViewStateFlow.value) {
+            val sourceBalanceValue = this.balances.find { it.currency == fromCurrency }?.amount
+            if (sourceBalanceValue == null) {
+                exchangeEnabled = false
+                return@with
+            }
+            val amount = try {
+                amountText.toDouble()
+            } catch (e: NumberFormatException) {
+                exchangeEnabled = false
+                return@with
+            }
+            if (amount > sourceBalanceValue) {
+                exchangeEnabled = false
+                return@with
+            }
+        }
+        _mainViewStateFlow.update {
+            it.copy(
+                exchangeEnabled = exchangeEnabled
+            )
+        }
+    }
+
+    fun exchange() {
+        viewModelScope.launch {
+            val fromCurrency = _mainViewStateFlow.value.fromCurrency
+            val toCurrency = _mainViewStateFlow.value.toCurrency
+            val amount = _mainViewStateFlow.value.amountText.toDouble()
+            multilet(fromCurrency, toCurrency) { fromCurrencyNotNull, toCurrencyNotNull ->
+                exchangeCurrencyUseCase.run(
+                    ExchangeCurrencyUseCase.Params(
+                        fromCurrencyNotNull,
+                        toCurrencyNotNull,
+                        amount
+                    )
+                ).collect { result ->
+                    when (result) {
+                        is Result.Success -> {
+                            _mainViewEffectFlow.emit(
+                                MainViewEffect(
+                                    message = String.format(
+                                        getString(R.string.exchange_syccessful),
+                                        result.data
+                                    )
+                                )
+                            )
+                            _mainViewStateFlow.update {
+                                it.copy(
+                                    amountText = "",
+                                    exchangeResult = 0.0,
+                                    isLoading = false
+                                )
+                            }
+                            updateBalances()
+                        }
+
+                        is Result.Error -> {
+                            _mainViewEffectFlow.emit(
+                                MainViewEffect(
+                                    errorMessage = getString(R.string.exchange_failed)
+                                )
+                            )
+                            _mainViewStateFlow.update {
+                                it.copy(
+                                    isLoading = false
+                                )
+                            }
+                        }
+
+                        is Result.Loading -> {
+                            _mainViewStateFlow.update {
+                                it.copy(
+                                    isLoading = true
+                                )
+                            }
+                        }
+                    }
+                }
+
+            }
+
         }
     }
 }

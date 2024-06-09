@@ -191,8 +191,16 @@ class CurrencyInteractionApiImpl(
             }
 
         val exchangedAmount = exchangingAmount * exchangeRate
-        val newFromBalance = fromBalance.copy(amount = fromBalance.amount - amount)
-        val newToBalance = toBalance.copy(amount = toBalance.amount + exchangedAmount)
+        val newFromBalance = if (fromBalance == toBalance) {
+            fromBalance.copy(amount = fromBalance.amount - commissionFee)
+        } else {
+            fromBalance.copy(amount = fromBalance.amount - amount)
+        }
+        val newToBalance = if (fromBalance == toBalance) {
+            newFromBalance
+        } else {
+            toBalance.copy(amount = toBalance.amount + exchangedAmount)
+        }
         if (!isPreview) {
 
 

@@ -24,6 +24,10 @@ abstract class GenericAdapter<T : Any, VB : ViewBinding>(
 
     abstract fun onBindViewHolder(item: T, binding: ViewBinding)
 
+    override fun submitList(list: List<T>?) {
+        super.submitList(list?.toMutableList()) //need to convert to mutable list for it to work
+    }
+
     class GenericViewHolder<VB : ViewBinding>(val binding: VB) :
         RecyclerView.ViewHolder(binding.root)
 }

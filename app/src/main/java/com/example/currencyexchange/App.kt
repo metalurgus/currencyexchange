@@ -29,7 +29,7 @@ class App : Application() {
     }
 
     val appModule = module {
-        viewModel { MainViewModel(get(), get(), get(), get()) }
+        viewModel { MainViewModel(get(), get(), get(), get(), get()) }
         single<(Int) -> String> { { id -> get<Application>().getString(id) } }
     }
 

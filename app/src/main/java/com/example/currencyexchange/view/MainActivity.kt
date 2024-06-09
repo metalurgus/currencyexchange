@@ -139,6 +139,10 @@ class MainActivity : AppCompatActivity() {
                     if (binding.textViewBuyAmount.text.toString() != viewState.exchangeResult.toCurrencyString()) {
                         binding.textViewBuyAmount.setText(viewState.exchangeResult.toCurrencyString())
                     }
+                    binding.buttonExchange.isEnabled = viewState.exchangeEnabled
+                    binding.buttonExchange.setOnClickListener {
+                        viewModel.exchange()
+                    }
 
                 }
             }
