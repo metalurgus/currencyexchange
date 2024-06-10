@@ -9,7 +9,6 @@ import com.example.currencyexchange.data.network.networkModule
 import com.example.currencyexchange.data.provider.ExchangeRatesProvider
 import com.example.currencyexchange.data.repository.repositoryModule
 import com.example.currencyexchange.data.usecase.ExchangeCurrencyUseCase
-import com.example.currencyexchange.data.usecase.GetExchangeRateUseCase
 import com.example.currencyexchange.data.usecase.GetExchangeRatesUseCase
 import com.example.currencyexchange.data.usecase.GetUserBalanceUseCase
 import com.example.currencyexchange.data.usecase.GetUserBalancesUseCase
@@ -28,7 +27,7 @@ import org.koin.test.KoinTest
 import org.koin.test.inject
 
 
-class ExampleUnitTest : KoinTest {
+class SimpleTests : KoinTest {
     val getExchangeRatesUseCase: GetExchangeRatesUseCase by inject()
     val getUserBalancesUseCase: GetUserBalancesUseCase by inject()
     val getUserBalanceUseCase: GetUserBalanceUseCase by inject()
