@@ -11,6 +11,8 @@ import com.example.currencyexchange.data.usecase.GetUserBalancesUseCase
 import com.example.currencyexchange.data.usecase.PreviewExchangeCurrencyUseCase
 import com.example.currencyexchange.data.usecase.UseCase
 import com.example.currencyexchange.util.multilet
+import com.example.currencyexchange.util.replaceComaWithDot
+import com.example.currencyexchange.util.toCurrencyString
 import com.example.currencyexchangetesttask.R
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -42,7 +44,7 @@ class MainViewModel(
         val toCurrency: String? = null,
         val amountText: String = "",
         val exchangeRate: Double = 0.0,
-        val exchangeResult: Double = 0.0,
+        val exchangeResult: String = "",
         val balances: List<Balance> = emptyList(),
         val exchangeRates: List<ExchangeRate> = emptyList(),
         val sellableCurrencies: Collection<String> = emptyList(),
@@ -50,30 +52,7 @@ class MainViewModel(
         val balancesError: Boolean = false,
         val exchangeRatesError: Boolean = false,
         val exchangeEnabled: Boolean = false
-    ) {
-        override fun equals(other: Any?): Boolean {
-            if (this === other) return true
-            if (javaClass != other?.javaClass) return false
-
-            other as MainViewState
-
-            if (isLoading != other.isLoading) return false
-            if (fromCurrency != other.fromCurrency) return false
-            if (toCurrency != other.toCurrency) return false
-            if (amountText != other.amountText) return false
-            if (exchangeRate != other.exchangeRate) return false
-            if (exchangeResult != other.exchangeResult) return false
-            if (balances != other.balances) return false
-            if (exchangeRates != other.exchangeRates) return false
-            if (sellableCurrencies != other.sellableCurrencies) return false
-            if (buyableCurrencies != other.buyableCurrencies) return false
-            if (balancesError != other.balancesError) return false
-            if (exchangeRatesError != other.exchangeRatesError) return false
-            if (exchangeEnabled != other.exchangeEnabled) return false
-
-            return true
-        }
-    }
+    )
 
     data class MainViewEffect(
         val message: String? = null,
@@ -215,20 +194,35 @@ class MainViewModel(
             _mainViewStateFlow.value.fromCurrency,
             _mainViewStateFlow.value.toCurrency
         ) { fromCurrency, toCurrency ->
-            val amountText = _mainViewStateFlow.value.amountText
+            val amountText = _mainViewStateFlow.value.amountText.replaceComaWithDot()
             if (amountText.isNotEmpty()) {
+                val doubleAmount = try {
+                    amountText.toDouble()
+                } catch (e: NumberFormatException) {
+                    _mainViewStateFlow.value = _mainViewStateFlow.value.copy(
+                        exchangeResult = ""
+                    )
+                    viewModelScope.launch {
+                        _mainViewEffectFlow.emit(
+                            MainViewEffect(
+                                errorMessage = getString(R.string.invalid_amount)
+                            )
+                        )
+                    }
+                    return@multilet
+                }
                 viewModelScope.launch {
                     previewExchangeCurrencyUseCase.run(
                         PreviewExchangeCurrencyUseCase.Params(
                             fromCurrency,
                             toCurrency,
-                            amountText.toDouble()
+                            doubleAmount
                         )
                     ).collect { result ->
                         when (result) {
                             is Result.Success -> {
                                 _mainViewStateFlow.value = _mainViewStateFlow.value.copy(
-                                    exchangeResult = result.data
+                                    exchangeResult = result.data.toCurrencyString()
                                 )
                             }
 
@@ -246,7 +240,7 @@ class MainViewModel(
                 }
             } else {
                 _mainViewStateFlow.value = _mainViewStateFlow.value.copy(
-                    exchangeResult = 0.0
+                    exchangeResult = ""
                 )
             }
         }
@@ -304,7 +298,7 @@ class MainViewModel(
                             _mainViewStateFlow.update {
                                 it.copy(
                                     amountText = "",
-                                    exchangeResult = 0.0,
+                                    exchangeResult = "",
                                     isLoading = false
                                 )
                             }
@@ -339,3 +333,5 @@ class MainViewModel(
         }
     }
 }
+
+

@@ -6,6 +6,7 @@ import com.example.currencyexchange.data.provider.providerModule
 import com.example.currencyexchange.data.repository.repositoryModule
 import com.example.currencyexchange.data.usecase.useCaseModule
 import com.example.currencyexchange.viewmodel.MainViewModel
+import com.example.currencyexchange.viewmodel.TransactionHistoryViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -30,6 +31,7 @@ class App : Application() {
 
     val appModule = module {
         viewModel { MainViewModel(get(), get(), get(), get(), get()) }
+        viewModel { TransactionHistoryViewModel(get()) }
         single<(Int) -> String> { { id -> get<Application>().getString(id) } }
     }
 

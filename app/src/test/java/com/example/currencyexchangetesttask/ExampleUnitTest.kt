@@ -30,7 +30,6 @@ import org.koin.test.inject
 
 class ExampleUnitTest : KoinTest {
     val getExchangeRatesUseCase: GetExchangeRatesUseCase by inject()
-    val getExchangeRateUseCase: GetExchangeRateUseCase by inject()
     val getUserBalancesUseCase: GetUserBalancesUseCase by inject()
     val getUserBalanceUseCase: GetUserBalanceUseCase by inject()
     val exchangeCurrencyUseCase: ExchangeCurrencyUseCase by inject()

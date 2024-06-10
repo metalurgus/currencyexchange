@@ -6,9 +6,8 @@ import com.example.currencyexchange.data.model.TransactionRecord
 import com.example.currencyexchange.data.provider.SharedPrefsProvider
 import com.example.currencyexchange.data.util.ObservableMutableList
 import com.google.gson.Gson
-import org.koin.core.context.GlobalContext
 
-class SharedPrefsProviderImpl(private val gson: Gson, private val context:Context) : SharedPrefsProvider {
+class SharedPrefsProviderImpl(private val gson: Gson, context:Context) : SharedPrefsProvider {
     companion object {
         private const val BALANCES_KEY = "balances"
         private const val TRANSACTION_NUMBER_KEY = "transactionNumber"
@@ -34,9 +33,6 @@ class SharedPrefsProviderImpl(private val gson: Gson, private val context:Contex
         } else {
             result.add(DEFAULT_BALANCE)
         }
-
-
-
         result
     }
 

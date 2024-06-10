@@ -5,11 +5,17 @@
     <string name="currency_exchange">CURRENCY EXCHANGE</string>
     <string name="main_activity_title">Currency Converter</string>
     <string name="sell">Sell</string>
-    <string name="failed_to_load_balances">Failed to load balances...</string>
+    <string name="failed_to_load_balances">Failed to load balances…</string>
     <string name="buy">Buy</string>
     <string name="failed_to_load_exchange_details">Failed to load exchange operation details</string>
     <string name="exchange">Exchange</string>
-    <string name="transaction_history">Transaction history</string>
+    <string name="history">History</string>
     <string name="exchange_failed">Exchange failed</string>
     <string name="exchange_syccessful">Exchange was successful. %s</string>
+    <string name="invalid_amount">Invalid amount entered…</string>
+    <string name="from_to_currency"><![CDATA[%s -> %s]]></string>
+    <string name="from_to_amount"><![CDATA[%.2f -> %.2f]]></string>
+    <string name="success">Success</string>
+    <string name="failed">Fail</string>
+    <string name="transaction_history">Transaction History</string>
 </resources>

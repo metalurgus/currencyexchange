@@ -1,20 +1,17 @@
 package com.example.currencyexchange.view
 
 import android.graphics.Color
-import android.graphics.Rect
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.View
-import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.example.currencyexchange.util.toCurrencyString
+import com.example.currencyexchange.util.afterTextChangedWatcher
+import com.example.currencyexchange.util.noNothingSelectOnItemSelectedListener
+import com.example.currencyexchange.util.SpaceItemDecoration
 import com.example.currencyexchange.view.adapter.BalanceAdapter
 import com.example.currencyexchange.view.adapter.CurrencyRateAdapter
 import com.example.currencyexchange.viewmodel.MainViewModel
@@ -33,8 +30,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
-        val view = binding.root
-        setContentView(view)
+        setContentView(binding.root)
 
         binding.recyclerViewMyBalances.layoutManager =
             LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
@@ -55,49 +51,21 @@ class MainActivity : AppCompatActivity() {
         toCurrenciesAdapter?.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         binding.spinnerSellCurrency.adapter = fromCurrenciesAdapter
         binding.spinnerSellCurrency.onItemSelectedListener =
-            object : AdapterView.OnItemSelectedListener {
-                override fun onItemSelected(
-                    parent: AdapterView<*>,
-                    view: View,
-                    position: Int,
-                    id: Long
-                ) {
-                    val selectedCurrency = parent.getItemAtPosition(position).toString()
-                    viewModel.updateFromCurrency(selectedCurrency)
-                }
-
-                override fun onNothingSelected(parent: AdapterView<*>) {
-                    // Do something when nothing is selected
-                }
+            noNothingSelectOnItemSelectedListener { parent, _, position, _ ->
+                val selectedCurrency = parent.getItemAtPosition(position).toString()
+                viewModel.updateFromCurrency(selectedCurrency)
             }
 
         binding.spinnerBuyCurrency.adapter = toCurrenciesAdapter
         binding.spinnerBuyCurrency.onItemSelectedListener =
-            object : AdapterView.OnItemSelectedListener {
-                override fun onItemSelected(
-                    parent: AdapterView<*>,
-                    view: View,
-                    position: Int,
-                    id: Long
-                ) {
-                    val selectedCurrency = parent.getItemAtPosition(position).toString()
-                    viewModel.updateToCurrency(selectedCurrency)
-                }
-
-                override fun onNothingSelected(parent: AdapterView<*>) {
-                    // Do something when nothing is selected
-                }
+            noNothingSelectOnItemSelectedListener { parent, _, position, _ ->
+                val selectedCurrency = parent.getItemAtPosition(position).toString()
+                viewModel.updateToCurrency(selectedCurrency)
             }
 
         binding.editTextSellAmount.addTextChangedListener(
-            object : TextWatcher {
-                override fun beforeTextChanged(s: CharSequence?, st: Int, c: Int, a: Int) {}
-
-                override fun onTextChanged(s: CharSequence?, st: Int, b: Int, c: Int) {}
-
-                override fun afterTextChanged(s: Editable?) {
-                    viewModel.updateAmount(s.toString())
-                }
+            afterTextChangedWatcher { amount ->
+                viewModel.updateAmount(amount)
             }
         )
 
@@ -136,12 +104,19 @@ class MainActivity : AppCompatActivity() {
                         if (viewState.balancesError) View.VISIBLE else View.GONE
                     binding.imageViewWarningCurrencyRates.visibility =
                         if (viewState.exchangeRatesError) View.VISIBLE else View.GONE
-                    if (binding.textViewBuyAmount.text.toString() != viewState.exchangeResult.toCurrencyString()) {
-                        binding.textViewBuyAmount.setText(viewState.exchangeResult.toCurrencyString())
+                    if (binding.textViewBuyAmount.text.toString() != viewState.exchangeResult) {
+                        binding.textViewBuyAmount.text = viewState.exchangeResult
                     }
                     binding.buttonExchange.isEnabled = viewState.exchangeEnabled
                     binding.buttonExchange.setOnClickListener {
                         viewModel.exchange()
+                    }
+                    binding.buttonTransactionHistory.setOnClickListener {
+                        val transactionHistoryDialogFragment = TransactionHistoryDialogFragment()
+                        transactionHistoryDialogFragment.show(
+                            supportFragmentManager,
+                            "TransactionHistoryDialog"
+                        )
                     }
 
                 }
@@ -177,22 +152,5 @@ class MainActivity : AppCompatActivity() {
         viewModel.stopUpdatingCurrencyRates()
     }
 
-    class SpaceItemDecoration(private val space: Int) : RecyclerView.ItemDecoration() {
-        override fun getItemOffsets(
-            outRect: Rect, view: View,
-            parent: RecyclerView, state: RecyclerView.State
-        ) {
-            outRect.left = space
-            outRect.right = space
-            outRect.bottom = space
 
-            val itemPosition = parent.getChildAdapterPosition(view)
-            if (itemPosition != 0) {
-                outRect.left = space
-            }
-            if (itemPosition == parent.adapter?.itemCount?.minus(1)) {
-                outRect.right = space
-            }
-        }
-    }
 }

@@ -2,9 +2,6 @@ package com.example.currencyexchange.view.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListAdapter
-import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
 import com.example.currencyexchange.data.model.Balance
 import com.example.currencyexchangetesttask.databinding.ListItemBalanceAndRateBinding
