@@ -3,14 +3,12 @@ package com.example.currencyexchange.data.network
 
 import com.example.currencyexchange.data.model.ExchangeRate
 import com.example.currencyexchange.data.model.response.ExchangeRatesResponse
+import com.example.currencyexchange.data.util.parseAsDate
 import com.google.gson.JsonDeserializationContext
 import com.google.gson.JsonDeserializer
 import com.google.gson.JsonElement
 import com.google.gson.reflect.TypeToken
 import java.lang.reflect.Type
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 class RateListDeserializer : JsonDeserializer<List<ExchangeRate>> {
     override fun deserialize(
@@ -20,11 +18,6 @@ class RateListDeserializer : JsonDeserializer<List<ExchangeRate>> {
     ) = json.asJsonObject.entrySet().map {
         ExchangeRate(it.key, it.value.asDouble)
     }
-}
-
-private fun String.parseAsDate(): Date {
-    val format = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-    return format.parse(this) ?: Date()
 }
 
 class ExchangeRatesResponseDeserializer : JsonDeserializer<ExchangeRatesResponse> {
